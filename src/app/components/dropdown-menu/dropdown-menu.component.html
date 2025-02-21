@@ -1,0 +1,32 @@
+
+<!-- 
+<div class="relative">
+  <button (click)="toggleDropdown()" class="menu-button">
+    <img src="/assets/menu.svg" alt="Menú">
+  </button>
+
+  @if (isOpen()) {
+    <ul class="dropdown-menu" [hidden]="!isOpen">
+      <li><a href="#">Cuenta</a></li>
+      <li><a href="#">Configuracion</a></li>
+      <li><a href="#">Mis recomentaciones</a></li>
+      
+    </ul>
+  }
+</div>
+ -->
+
+<!-- dropdown-menu.component.html -->
+<div class="relative">
+  <button (click)="toggleDropdown()" class="menu-button">
+    <img src="/assets/menu.svg" alt="Menú">
+  </button>
+
+  <!-- Mostrar el menú solo si isOpen() es true -->
+  <ul *ngIf="isOpen()" class="dropdown-menu" [ngClass]="{ 'show': isOpen() }">
+    <li class="dropdown-item"><a href="#">Cuenta</a></li>
+    <li class="dropdown-item"><a href="#">Configuración</a></li>
+    <li class="dropdown-item"><a href="#">Mis recomendaciones</a></li>
+    <li class="dropdown-item"><a href="#">Cerrar sesión</a></li>
+  </ul>
+</div>
