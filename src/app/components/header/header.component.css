@@ -1,0 +1,28 @@
+.header > .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    height: 32px;
+  }
+
+  span {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+
+.header > app-search-bar {
+  min-width: 30em;
+}
+
+.header {
+  background-color: rgb(154, 180, 228);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem;
+  position: sticky;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

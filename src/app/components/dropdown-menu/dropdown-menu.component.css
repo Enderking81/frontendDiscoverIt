@@ -1,0 +1,71 @@
+/* Contenedor del dropdown */
+.relative {
+  position: relative;
+}
+
+/* Estilo para el botón del menú */
+.menu-button {
+  background: transparent;
+  padding: 0.5rem;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  display: flex;
+  text-decoration: none;
+}
+
+/* Avatar o icono del menú */
+.menu-button img {
+  width: 24px;
+  height: 24px;
+  text-decoration: none;
+}
+
+/* Menú desplegable */
+.dropdown-menu {
+  text-decoration: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0; 
+  visibility: hidden; 
+  transform: translateY(-10px); /* Empuja el menú hacia arriba al principio */
+  transition: opacity 0.5s ease, visibility 0s 0.5s, transform 0.5s ease; /* Transición para opacidad, visibilidad y movimiento */
+  padding: 0px;
+  margin: 4px;
+}
+
+/* Cuando el menú está visible */
+.dropdown-menu.show {
+  text-decoration: none;
+  opacity: 1; /* Muestra el menú */
+  visibility: visible; /* Hace el menú interactuable */
+  transform: translateY(0); /* Mueve el menú a su posición normal */
+
+}
+
+/* Estilo para los elementos del menú */
+.dropdown-item{
+  padding: 0.4rem 0rem;
+  color: #374151;
+  display: block;
+  transition: background 0.3s;
+  border-radius: 8px;
+  margin: 4px;
+  cursor: pointer;
+}
+
+.dropdown-item > a {
+  text-decoration: none;
+  color: #374151;
+}
+
+.dropdown-item:hover {
+  background: #788397;
+}
