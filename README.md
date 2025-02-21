@@ -1,6 +1,6 @@
 # Discover It - Frontend
 
-Discover It es una aplicación inspirada que permite a los usuarios explorar, descubrir y recomendar contenido de su interés. Este repositorio contiene el código del frontend desarrollado con **Angular 17**.
+Discover It es una aplicación que permite a los usuarios explorar, descubrir y recomendar contenido de su interés. Este repositorio contiene el código del frontend desarrollado con **Angular 17**.
 
 ## 🚀 Tecnologías Utilizadas
 
