@@ -1,47 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { CatsService } from '../../cats.service.js';
-import { PlaceprodCardsComponent } from '../../components/placeprod-cards/placeprod-cards.component';  
-import { GridComponent } from '../../components/grid/grid.component'; 
-import { forkJoin } from 'rxjs';
-import { HttpClientModule } from '@angular/common/http';
+// home.component.ts
+import { Component } from '@angular/core';
+import { GridComponent } from '../../components/grid/grid.component'; // Correcto: Importar sin .js
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  standalone: true,  
-  imports: [
-    PlaceprodCardsComponent, GridComponent, HttpClientModule
-  ],
+  standalone: true,
+  imports: [GridComponent], // Importar GridComponent aquí
 })
-export class HomeComponent implements OnInit {
-  page: number = 1;
-  catTypes: string[] = ['xsmall', 'small', 'medium', 'square'];
-  cards: Array<{ id: number; imageUrl: string }> = [];
+export class HomeComponent {
+  // Los datos de las tarjetas para pasar a GridComponent
+  cards = [
+    { id: 0, imageUrl: 'blob:http://localhost:4200/...' },
+    { id: 1, imageUrl: 'blob:http://localhost:4200/...' },
+  ];
 
-  constructor(private catsService: CatsService) {}
-
-  ngOnInit(): void {
-    this.fetchCards();
-  }
-
-  fetchCards(): void {
-    const requests = this.catTypes.map((type) => this.catsService.getCatImage(type));
-
-    forkJoin(requests).subscribe((data: any[]) => {
-      this.cards = data.map((item, index) => ({
-        id: index + (this.page - 1) * this.catTypes.length,
-        imageUrl: item.url,
-      }));
-    }, (error) => {
-      console.error('Error al obtener las imágenes:', error);
-    }
-  
-  );
-  }
-
-  nextPage(): void {
-    this.page += 1;
-    this.fetchCards();
+  nextPage() {
+    console.log('Next Page clicked');
   }
 }

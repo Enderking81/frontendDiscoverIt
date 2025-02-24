@@ -10,11 +10,12 @@ export class CatsService {
 
   constructor(private http: HttpClient) {}
 
-  getCatImage(type: string): Observable<any> {
-    // para ver si es correcto el tipo de imagen o no 
+  getCatImage(type: string): Observable<Blob> {
     if (!['square', 'medium', 'small', 'xsmall'].includes(type)) {
       throw new Error(`Tipo de imagen de gato no válido: ${type}`);
     }
-    return this.http.get(`${this.apiUrl}${type}`);
+
+    // Pedimos la imagen como un Blob
+    return this.http.get(`${this.apiUrl}${type}`, { responseType: 'blob' });
   }
 }

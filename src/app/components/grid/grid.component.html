@@ -1,3 +1,5 @@
 <div class="grid-container">
-  <app-placeprod-cards *ngFor="let card of cards" [cardData]="[card]"></app-placeprod-cards>
+  <div class="card" *ngFor="let card of cards">
+    <app-placeprod-cards [cardData]="card"></app-placeprod-cards>
+  </div>
 </div>
