@@ -1,0 +1,130 @@
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+  
+.profile-header {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-background {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-card {
+    background-color: rgba(70, 130, 180, 0.9);
+    width: 80%;
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    border-radius: 50px;
+    margin-top: -50px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+
+    position: relative;
+    z-index: 10;
+}
+
+@media (max-width: 600px) {
+    .profile-card {
+        width: 90%;
+        padding: 15px;
+        font-size: 14px;
+    }
+}
+
+.profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+    margin-top: -48px;
+}
+
+.profile-card h2 {
+    margin: 10px 0;
+    font-size: 20px;
+    color: black;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.profile-stats div {
+    text-align: center;
+}
+
+.profile-stats span {
+    font-weight: bold;
+    font-size: 18px;
+    display: block;
+}
+
+.profile-stats p {
+    font-size: 14px;
+    color: black;
+}
+
+
+.profile-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.profile-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+
+.edit-btn {
+    background-color: #59d2fe;
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: rgb(2, 62, 138);
+    transform: scale(1.05);
+}
+
+
+.saved-btn {
+    background-color: #59d2fe; 
+    color: white;
+}
+
+.saved-btn:hover {
+    background-color: rgb(2, 62, 138);
+    transform: scale(1.05);
+}
+
+
+@media (max-width: 600px) {
+    .profile-buttons {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+
+    .profile-btn {
+        width: 80%;
+        text-align: center;
+    }
+}
