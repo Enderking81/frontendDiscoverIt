@@ -1,5 +1,4 @@
-<div class="card">
-  <img [src]="cardData.imageUrl" [alt]="'Cat Image ' + cardData.id" />
+<div class="card" (click)="goToPlaceProdPage(cardData.id)">
+  <img [src]="cardData.images[0]" [alt]="'placeProd #'+cardData.id" />
+  <p>{{cardData.name}}</p>
 </div>
-
-

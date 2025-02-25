@@ -1,46 +1,14 @@
 /* Grid container */
 .grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-  padding: 20px;
-  max-width: 100%; /* Asegura que el contenedor ocupe el 100% del espacio disponible */
+  column-count: clamp(2, 4, 7);
+  column-gap: 3em;
+  gap: 1em;
+  /*min-width: 30rem;*/
+  /*max-width: 0.8vw; !* Asegura que el contenedor ocupe el 100% del espacio disponible *!*/
+  min-height: 1vh;
+  width: 100%;
 }
 
-  
-  /* Estilos para las tarjetas */
-  .card {
-    position: relative;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-  }
-  
-  /* Estilos para el botón "Next" */
-  .next-button {
-    display: block;
-    width: 200px;
-    margin: 20px auto;
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-  }
-  
-  .next-button:hover {
-    background-color: #0056b3;
-  }
-  
+.grid-container > * {
+  margin-top: 1em;
+}

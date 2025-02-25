@@ -1,7 +1,10 @@
+
 /* Contenedor del dropdown */
 .relative {
+  z-index: 99;
   position: relative;
 }
+
 
 /* Estilo para el botón del menú */
 .menu-button {
@@ -27,7 +30,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
+  background: rgb(2, 62, 138);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   width: 150px;
@@ -63,9 +66,10 @@
 
 .dropdown-item > a {
   text-decoration: none;
-  color: #374151;
+  color: #ffffff;
 }
 
 .dropdown-item:hover {
   background: #788397;
+  transition: background-color 0.5s;
 }

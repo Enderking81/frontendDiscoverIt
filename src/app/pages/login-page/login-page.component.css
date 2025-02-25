@@ -1,0 +1,117 @@
+/* Contenedor principal del login */
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    background-color: #f8f9fa;
+  }
+  
+  /* Estilo del contenedor izquierdo donde está el texto y la imagen */
+  .login-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    background-image: url('/assets/background-register.svg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px 0 0 10px; /* Bordes redondeados solo en la izquierda */
+    width: 100%;
+    height: auto;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+    min-height: 600px;
+  }
+  
+  /* Estilo general para el texto dentro del contenedor izquierdo */
+  .login-left {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    text-align: center;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+  }
+  
+  /* Estilo del texto dentro del párrafo en el contenedor izquierdo */
+  .login-left p {
+    font-size: 1.5rem;
+    margin-top: center;
+    text-align: center;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    padding-left: 2rem; /* Espacio adicional a la izquierda */
+    padding-right: 2rem; /* Espacio adicional a la derecha */
+    
+    color: #ffffff;
+  }
+  
+  /* Estilo para la imagen (logo) dentro del contenedor izquierdo */
+  .login-left .logo {
+    width: 300px;
+    margin-bottom: 1rem;
+    margin-top: center;
+
+    }
+  
+  /* Estilo del contenedor derecho donde está el formulario */
+  .login-right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.753);
+    padding: 2rem;
+    border-radius: 0 10px 10px 0; /* Bordes redondeados solo en la derecha */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    height: auto;
+    min-width: 300px;
+    min-height: 600px;
+    margin-top: 1rem;
+  }
+  
+  /* Estilo general del formulario */
+  form {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    margin-top: center;
+  }
+  
+  /* Estilo para las etiquetas del formulario */
+  label {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  /* Estilo para los campos de entrada (input) */
+  input {
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* Estilo para el botón de envío */
+  button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #59d2fe;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* Efecto al pasar el cursor sobre el botón */
+  button:hover {
+    background-color: rgb(2, 62, 138);
+    transition: background-color 0.3s;
+  }
+  

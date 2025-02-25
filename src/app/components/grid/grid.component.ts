@@ -1,8 +1,8 @@
-// grid.component.ts
 import { Component, Input } from '@angular/core';
 import { PlaceprodCardsComponent } from '../placeprod-cards/placeprod-cards.component';
-import { CatsService } from '../../cats.service';
 import { CommonModule } from '@angular/common';
+import { PlaceProdService } from '../../services/place-prod.service.js';
+import {placeProduct} from "../../model/placeProduct";
 
 @Component({
   selector: 'app-grid',
@@ -12,23 +12,22 @@ import { CommonModule } from '@angular/common';
   imports: [PlaceprodCardsComponent, CommonModule], // Importar correctamente el componente dependiente
 })
 export class GridComponent {
-  @Input() cards: Array<{ id: number; imageUrl: string }> = [];  // Asegúrate de que cards esté marcado como @Input()
+  cards: placeProduct[] = [];
 
-  constructor(private CatsService: CatsService) {}
+  constructor(
+      private placeProdService: PlaceProdService) {}
 
   ngOnInit() {
-    this.loadImages();
+    //  this.loadImages();
+    this.loadCards()
   }
 
-  loadImages() {
-    for (let i = 0; i < 4; i++) {
-      this.CatsService.getCatImage('square').subscribe({
-        next: (blob) => {
-          const objectURL = URL.createObjectURL(blob);
-          this.cards.push({ id: i, imageUrl: objectURL });
-        },
-        error: (err) => console.error('Error cargando imagen:', err),
-      });
-    }
+  loadCards() {
+    this.placeProdService.getAll()
+        .subscribe(
+            res => {
+              this.cards.push(...res)
+            }
+        )
   }
 }

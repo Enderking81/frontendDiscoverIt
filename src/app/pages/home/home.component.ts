@@ -1,6 +1,8 @@
 // home.component.ts
-import { Component } from '@angular/core';
-import { GridComponent } from '../../components/grid/grid.component'; // Correcto: Importar sin .js
+import { Component, OnInit } from '@angular/core';
+import { GridComponent } from '../../components/grid/grid.component';
+import {placeProduct} from "../../model/placeProduct";
+import {PlaceProdService} from "../../services/place-prod.service"; // Correcto: Importar sin .js
 
 @Component({
   selector: 'app-home',
@@ -10,11 +12,12 @@ import { GridComponent } from '../../components/grid/grid.component'; // Correct
   imports: [GridComponent], // Importar GridComponent aquí
 })
 export class HomeComponent {
+  constructor(
+      private placeProdService: PlaceProdService) { }
+
   // Los datos de las tarjetas para pasar a GridComponent
-  cards = [
-    { id: 0, imageUrl: 'blob:http://localhost:4200/...' },
-    { id: 1, imageUrl: 'blob:http://localhost:4200/...' },
-  ];
+  cards: placeProduct[] = []
+
 
   nextPage() {
     console.log('Next Page clicked');

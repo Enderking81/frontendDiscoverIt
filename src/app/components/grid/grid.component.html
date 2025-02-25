@@ -1,5 +1,7 @@
 <div class="grid-container">
-  <div class="card" *ngFor="let card of cards">
-    <app-placeprod-cards [cardData]="card"></app-placeprod-cards>
-  </div>
+  @for (card of cards; track card.id) {
+      <app-placeprod-cards [cardData]="card"></app-placeprod-cards>
+  }
 </div>
+
+<!-- Columnas de ~260px -->

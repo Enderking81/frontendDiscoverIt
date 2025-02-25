@@ -9,3 +9,5 @@ bootstrapApplication(AppComponent,{
   ]
 })
   .catch(err => console.error(err));
+
+export const API_URL = 'http://localhost:3000/api';
