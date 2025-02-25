@@ -1,0 +1,46 @@
+<div class="place-product-container">
+    <div class="image-section">
+      <div class="favorite-icon">❤️</div>
+      <img src="assets/prueba.jpg" alt="Imagen del producto">
+    </div>
+  
+    <div class="details-section">
+      <h2>Nombre del place/product</h2>
+      
+      
+      <div class="categories">
+        <button *ngFor="let category of categories" class="category-btn">{{ category }}</button>
+      </div>
+  
+      <p class="description">Descripción del place/product</p>
+  
+  
+      <div class="comments">
+        <div *ngFor="let comment of comments" class="comment">
+          <span class="user-icon">👤</span>
+          <strong>{{ comment.name }}</strong>: {{ comment.text }}
+        </div>
+      </div>
+  
+     
+      <div class="add-comment">
+        <input type="text" [(ngModel)]="newComment" placeholder="Añade un comentario para esta publicación">
+        <button (click)="toggleRating()" class="toggle-rating-btn">+</button>
+      </div>
+  
+    
+      <div class="rating-container" *ngIf="showRating">
+        <span *ngFor="let star of [1, 2, 3, 4, 5]" 
+              (click)="setRating(star)" 
+              (mouseover)="hoverRating = star"
+              (mouseleave)="hoverRating = 0"
+              [class.filled]="star <= rating || star <= hoverRating">
+          ☆
+        </span>
+      </div>
+      
+  
+      <button (click)="addComment()" class="submit-btn">Enviar</button>
+    </div>
+  </div>
+  

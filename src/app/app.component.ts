@@ -8,6 +8,7 @@ import { PlaceProductPageComponent } from './pages/place-product-page/place-prod
 import { LoginPageComponent } from './pages/login-page/login-page.component.js';
 import { RegisterPageComponent } from './pages/register-page/register-page.component.js';
 import { ProfilePageComponent } from './pages/profile-page/profile-page.component.js';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -20,7 +21,8 @@ import { ProfilePageComponent } from './pages/profile-page/profile-page.componen
     PlaceProductPageComponent, 
     LoginPageComponent, 
     RegisterPageComponent,
-    ProfilePageComponent],
+    ProfilePageComponent
+  ],
   standalone: true
 })
 export class AppComponent {
