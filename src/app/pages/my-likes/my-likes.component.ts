@@ -14,7 +14,6 @@ import { SkeletonCardComponent } from '../../components/skeleton-card/skeleton-c
 })
 export class MyLikesComponent implements OnInit {
   lugares: Place[] = [];
-  likedIds = new Set<number>();
   cargando = true;
   readonly skeletons = Array(4);
 
@@ -22,10 +21,11 @@ export class MyLikesComponent implements OnInit {
 
   ngOnInit() {
     this.places.getMyLikes().subscribe({
-      next: (likes) => {
-        // los likes incluyen el objeto Place_Product anidado
-        this.lugares = likes.map((l: any) => l.Place_Product).filter(Boolean);
-        this.likedIds = new Set(this.lugares.map(p => p.id));
+      next: (likes: any[]) => {
+        // el backend devuelve UserLike[] con Place_Product anidado (con Category)
+        this.lugares = likes
+          .map(l => l.Place_Product)
+          .filter(Boolean);
         this.cargando = false;
       },
       error: () => { this.cargando = false; }
@@ -33,12 +33,8 @@ export class MyLikesComponent implements OnInit {
   }
 
   onToggleLike(place: Place) {
-    // saca el like y quita la card de la lista
-    this.places.toggleLike(place.id, true).subscribe({
-      next: () => {
-        this.lugares = this.lugares.filter(p => p.id !== place.id);
-        this.likedIds.delete(place.id);
-      }
-    });
+    // quitar el like y remover la card de la lista inmediatamente (UX optimista)
+    this.lugares = this.lugares.filter(p => p.id !== place.id);
+    this.places.toggleLike(place.id, true).subscribe();
   }
 }
