@@ -1,0 +1,68 @@
+<div class="profile-page">
+
+  <!-- hero del perfil -->
+  <section class="profile-hero">
+    <div class="avatar-wrap">
+      <div class="avatar-circle">{{ inicial }}</div>
+    </div>
+
+    @if (usuario) {
+      <h1 class="profile-name">{{ usuario.nickname }}</h1>
+      <p class="profile-email">{{ usuario.email }}</p>
+      @if (usuario.isAdmin) {
+        <span class="admin-pill">Administrador</span>
+      }
+    } @else {
+      <p class="no-auth">
+        <a routerLink="/login">Iniciá sesión</a> para ver tu perfil.
+      </p>
+    }
+  </section>
+
+  @if (usuario) {
+    <!-- stats -->
+    <section class="stats-row">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-card">
+          <span class="stat-value">{{ stat.value }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
+        </div>
+      }
+    </section>
+
+    <!-- info card -->
+    <section class="info-section">
+      <div class="info-card">
+        <h2>Información de cuenta</h2>
+        <div class="info-row">
+          <span class="info-key">Usuario</span>
+          <span class="info-val">{{ usuario.nickname }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Email</span>
+          <span class="info-val">{{ usuario.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Rol</span>
+          <span class="info-val">{{ usuario.isAdmin ? 'Administrador' : 'Usuario' }}</span>
+        </div>
+      </div>
+
+      <!-- accesos rápidos -->
+      <div class="info-card">
+        <h2>Accesos rápidos</h2>
+        <a routerLink="/my-likes" class="quick-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Mis Favoritos
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+        <a routerLink="/" class="quick-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Explorar lugares
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+  }
+
+</div>

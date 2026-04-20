@@ -1,5 +1,8 @@
-<!-- header fijo en todas las páginas -->
-<app-header></app-header>
+<!-- sidebar flotante — persiste en todas las rutas -->
+<app-sidebar />
 
-<!-- el router-outlet renderiza el componente de la ruta activa -->
-<router-outlet></router-outlet>
+<!-- navbar fija -->
+<app-header />
+
+<!-- contenido de la ruta activa — sin parpadeos gracias al client-side routing -->
+<router-outlet />

@@ -1,0 +1,85 @@
+.likes-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.likes-header {
+  margin-bottom: 2rem;
+}
+
+.likes-header h1 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4rem;
+}
+
+.likes-header p {
+  font-size: 0.95rem;
+  color: var(--color-mid);
+  margin: 0;
+}
+
+.discovery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.4rem;
+}
+
+/* empty state */
+.empty-state {
+  text-align: center;
+  padding: 5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(91,110,191,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--color-accent);
+  opacity: 0.6;
+}
+
+.empty-state h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  color: var(--color-mid);
+  margin: 0;
+  max-width: 320px;
+}
+
+.btn-explore {
+  display: inline-block;
+  margin-top: 0.5rem;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.65rem 1.8rem;
+  border-radius: 100px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-explore:hover { background: var(--color-accent-h); transform: translateY(-1px); }

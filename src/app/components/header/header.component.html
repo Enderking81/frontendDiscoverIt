@@ -1,15 +1,21 @@
 <header class="navbar">
   <div class="navbar-inner">
 
-    <!-- logo -->
-    <a routerLink="/" class="navbar-logo">
-      <img src="assets/Discoverit2.png" alt="DiscoverIt" />
+    <!-- botón hamburguesa que abre el sidebar -->
+    <button class="menu-toggle" (click)="abrirSidebar()" aria-label="Abrir menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6"  x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- logo + nombre -->
+    <a routerLink="/" class="navbar-logo-wrap">
+      <img src="assets/Discoverit2.png" alt="DiscoverIt" class="navbar-logo" />
+      <span class="navbar-brand">DiscoverIt</span>
     </a>
 
-    <!-- nombre de la app -->
-    <a routerLink="/" class="navbar-brand">DiscoverIt</a>
-
-    <!-- espaciador -->
     <div class="navbar-spacer"></div>
 
     <!-- menú de usuario -->

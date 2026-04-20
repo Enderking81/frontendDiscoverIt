@@ -57,6 +57,7 @@
         <app-place-card
           [place]="place"
           [liked]="isLiked(place)"
+          [index]="$index"
           (toggleLike)="onToggleLike($event)"
         />
       }

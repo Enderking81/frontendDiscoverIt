@@ -1,0 +1,80 @@
+<!-- backdrop oscuro — cierra el sidebar al hacer clic -->
+<div
+  class="backdrop"
+  [class.visible]="isOpen"
+  (click)="cerrar()"
+  aria-hidden="true"
+></div>
+
+<!-- panel lateral -->
+<aside class="sidebar" [class.open]="isOpen" role="navigation" aria-label="Menú lateral">
+
+  <!-- encabezado del sidebar -->
+  <div class="sidebar-header">
+    <img src="assets/Discoverit2.png" alt="DiscoverIt" class="sb-logo" />
+    <span class="sb-brand">DiscoverIt</span>
+    <button class="close-btn" (click)="cerrar()" aria-label="Cerrar menú">
+      <!-- ícono X -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- avatar + datos del usuario -->
+  @if (usuario) {
+    <div class="user-card">
+      <div class="avatar">{{ usuario.nickname.charAt(0).toUpperCase() }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ usuario.nickname }}</span>
+        <span class="user-email">{{ usuario.email }}</span>
+        @if (usuario.isAdmin) {
+          <span class="admin-badge">Admin</span>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="guest-card">
+      <p>¿Ya tenés cuenta?</p>
+      <div class="guest-actions">
+        <a class="btn-outline" (click)="navegarY('/login')">Iniciar sesión</a>
+        <a class="btn-solid"   (click)="navegarY('/register')">Registrarse</a>
+      </div>
+    </div>
+  }
+
+  <!-- separador -->
+  <div class="divider"></div>
+
+  <!-- navegación principal -->
+  <nav class="nav-list">
+    @for (item of navItems; track item.route) {
+      <button
+        class="nav-item"
+        [class.active]="router.url === item.route || (item.route !== '/' && router.url.startsWith(item.route))"
+        (click)="navegarY(item.route)"
+      >
+        <!-- íconos SVG inline por nombre -->
+        <span class="nav-icon" [innerHTML]="getIcon(item.icon)"></span>
+        <span class="nav-label">{{ item.label }}</span>
+      </button>
+    }
+  </nav>
+
+  <!-- footer del sidebar -->
+  <div class="sidebar-footer">
+    @if (usuario) {
+      <button class="logout-btn" (click)="cerrarSesion()">
+        <!-- ícono log-out -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Cerrar sesión
+      </button>
+    }
+    <p class="footer-copy">DiscoverIt &copy; 2026</p>
+  </div>
+
+</aside>
