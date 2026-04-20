@@ -1,13 +1,158 @@
 @if (cargando) {
-  <p class="estado">Cargando...</p>
+  <!-- skeleton del detalle -->
+  <div class="detail-skeleton">
+    <div class="skeleton hero-sk"></div>
+    <div class="detail-body">
+      <div class="skeleton line-xl"></div>
+      <div class="skeleton line-md"></div>
+      <div class="skeleton line-sm"></div>
+    </div>
+  </div>
+
 } @else if (!place) {
-  <p class="estado">Lugar no encontrado.</p>
+  <div class="not-found">
+    <p>Lugar no encontrado.</p>
+    <a routerLink="/" class="btn-back">← Volver al inicio</a>
+  </div>
+
 } @else {
-  <main class="detalle">
-    <h1>{{ place.name }}</h1>
-    <p>{{ place.description }}</p>
-    <p><strong>Ubicación:</strong> {{ place.location }}</p>
-    <p><strong>Categoría:</strong> {{ place.Category?.name }}</p>
-    <p><strong>Puntaje:</strong> {{ place.average_rating ?? 'Sin reseñas' }}</p>
-  </main>
+  <!-- hero image -->
+  <section class="detail-hero">
+    <img [src]="place.image" [alt]="place.name" (error)="onImgError($event)" />
+    <div class="hero-overlay">
+      <a routerLink="/" class="btn-back-glass">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Volver
+      </a>
+    </div>
+  </section>
+
+  <div class="detail-container">
+
+    <!-- info principal -->
+    <article class="detail-card info-card">
+      <div class="info-header">
+        <div>
+          @if (place.Category) {
+            <span class="category-badge">{{ place.Category.name }}</span>
+          }
+          <h1 class="detail-title">{{ place.name }}</h1>
+        </div>
+
+        <!-- like button -->
+        <button class="like-btn-lg" [class.liked]="liked" (click)="onToggleLike()" [disabled]="!estaLogueado">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="info-meta">
+        <span class="meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {{ place.location }}
+        </span>
+
+        @if (place.average_rating) {
+          <span class="meta-item rating">
+            <svg viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            {{ place.average_rating.toFixed(1) }} / 5
+          </span>
+        }
+      </div>
+
+      <p class="detail-desc">{{ place.description }}</p>
+
+      <!-- mapa placeholder -->
+      <div class="map-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-1.447-.894L15 9m0 8V9m0 0L9 7"/>
+        </svg>
+        <span>{{ place.location }}</span>
+      </div>
+    </article>
+
+    <!-- sección de recomendaciones -->
+    <article class="detail-card">
+      <h2 class="section-title">
+        Recomendaciones
+        <span class="count-badge">{{ recomendaciones.length }}</span>
+      </h2>
+
+      @if (estaLogueado) {
+        <form class="rec-form" (ngSubmit)="onEnviarRecomendacion()">
+          <div class="stars-selector">
+            @for (n of [1,2,3,4,5]; track n) {
+              <button type="button" class="star-btn" [class.sel]="n <= nuevoPuntaje" (click)="nuevoPuntaje = n">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </button>
+            }
+          </div>
+          <textarea [(ngModel)]="nuevaDescripcion" name="desc" rows="3" placeholder="¿Qué te pareció este lugar?" class="textarea"></textarea>
+          <button type="submit" class="btn-primary" [disabled]="enviandoRec">
+            {{ enviandoRec ? 'Enviando...' : 'Publicar recomendación' }}
+          </button>
+        </form>
+      } @else {
+        <p class="auth-notice"><a routerLink="/login">Iniciá sesión</a> para recomendar este lugar.</p>
+      }
+
+      <div class="rec-list">
+        @for (rec of recomendaciones; track rec.id) {
+          <div class="rec-item">
+            <div class="rec-header">
+              <span class="rec-user">{{ rec.User?.nickname ?? 'Usuario' }}</span>
+              <div class="stars-sm">
+                @for (full of puntajeArray(rec.points); track $index) {
+                  <svg class="star-sm" [class.full]="full" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                }
+              </div>
+            </div>
+            @if (rec.description) {
+              <p class="rec-desc">{{ rec.description }}</p>
+            }
+          </div>
+        } @empty {
+          <p class="empty-msg">Todavía no hay recomendaciones.</p>
+        }
+      </div>
+    </article>
+
+    <!-- sección de comentarios -->
+    <article class="detail-card">
+      <h2 class="section-title">
+        Comentarios
+        <span class="count-badge">{{ comentarios.length }}</span>
+      </h2>
+
+      @if (estaLogueado) {
+        <form class="comment-form" (ngSubmit)="onEnviarComentario()">
+          <textarea [(ngModel)]="nuevoComentario" name="comentario" rows="3"
+            placeholder="Escribí tu comentario..." class="textarea"></textarea>
+          <button type="submit" class="btn-primary" [disabled]="enviandoComentario || !nuevoComentario.trim()">
+            {{ enviandoComentario ? 'Enviando...' : 'Publicar comentario' }}
+          </button>
+        </form>
+      } @else {
+        <p class="auth-notice"><a routerLink="/login">Iniciá sesión</a> para comentar.</p>
+      }
+
+      <div class="comment-list">
+        @for (com of comentarios; track com.id) {
+          <div class="comment-item">
+            <div class="comment-header">
+              <span class="comment-user">{{ com.User?.nickname ?? 'Usuario' }}</span>
+              <span class="comment-date">{{ com.datetimecomment | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <p class="comment-text">{{ com.comment_text }}</p>
+          </div>
+        } @empty {
+          <p class="empty-msg">Todavía no hay comentarios.</p>
+        }
+      </div>
+    </article>
+
+  </div>
 }

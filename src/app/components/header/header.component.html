@@ -1,11 +1,19 @@
-<nav class="header">
-  <a class="logo"> <!-- TODO: link a / -->
-    <img src="assets/Discoverit2.png" alt="Discoverit Logo" />
-  </a>
+<header class="navbar">
+  <div class="navbar-inner">
 
-  <!-- TODO: barra de búsqueda -->
-  <app-search-bar></app-search-bar>
+    <!-- logo -->
+    <a routerLink="/" class="navbar-logo">
+      <img src="assets/Discoverit2.png" alt="DiscoverIt" />
+    </a>
 
-  <!-- TODO: Dropdown -->
-  <app-dropdown-menu></app-dropdown-menu>
-</nav>
+    <!-- nombre de la app -->
+    <a routerLink="/" class="navbar-brand">DiscoverIt</a>
+
+    <!-- espaciador -->
+    <div class="navbar-spacer"></div>
+
+    <!-- menú de usuario -->
+    <app-dropdown-menu />
+
+  </div>
+</header>

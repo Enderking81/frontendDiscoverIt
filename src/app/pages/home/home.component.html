@@ -1,3 +1,66 @@
-<main class="container mx-auto p-4">
-  <h1>Bienvenido!</h1>
+<!-- hero section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Descubrí lugares increíbles</h1>
+    <p class="hero-subtitle">Restaurantes, museos, bares y más. Explorados por personas reales.</p>
+
+    <!-- barra de búsqueda con ícono inline -->
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Buscar lugares, barrios..."
+        (input)="onBusqueda($event)"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- filtros de categoría en pills -->
+<section class="filtros-section">
+  <div class="filtros-scroll">
+    @for (cat of categorias; track cat.id) {
+      <button
+        class="pill"
+        [class.activa]="categoriaActiva === cat.id"
+        (click)="seleccionarCategoria(cat.id)"
+      >
+        {{ cat.label }}
+      </button>
+    }
+  </div>
+</section>
+
+<!-- discovery grid -->
+<main class="grid-section">
+
+  @if (cargando) {
+    <div class="discovery-grid">
+      @for (s of skeletons; track $index) {
+        <app-skeleton-card />
+      }
+    </div>
+  } @else if (filtrados.length === 0) {
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <p>No encontramos lugares con ese filtro.</p>
+      <button class="pill activa" (click)="seleccionarCategoria(0)">Ver todos</button>
+    </div>
+  } @else {
+    <div class="discovery-grid">
+      @for (place of filtrados; track place.id) {
+        <app-place-card
+          [place]="place"
+          [liked]="isLiked(place)"
+          (toggleLike)="onToggleLike($event)"
+        />
+      }
+    </div>
+  }
+
 </main>
