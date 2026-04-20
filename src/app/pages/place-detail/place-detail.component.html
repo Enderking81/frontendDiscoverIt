@@ -1,0 +1,13 @@
+@if (cargando) {
+  <p class="estado">Cargando...</p>
+} @else if (!place) {
+  <p class="estado">Lugar no encontrado.</p>
+} @else {
+  <main class="detalle">
+    <h1>{{ place.name }}</h1>
+    <p>{{ place.description }}</p>
+    <p><strong>Ubicación:</strong> {{ place.location }}</p>
+    <p><strong>Categoría:</strong> {{ place.Category?.name }}</p>
+    <p><strong>Puntaje:</strong> {{ place.average_rating ?? 'Sin reseñas' }}</p>
+  </main>
+}
