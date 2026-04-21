@@ -58,3 +58,27 @@
 }
 
 .navbar-spacer { flex: 1; }
+
+/* toggle dark mode */
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-mid);
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.theme-toggle svg { width: 16px; height: 16px; }
+
+.theme-toggle:hover {
+  background: rgba(91,110,191,0.1);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}

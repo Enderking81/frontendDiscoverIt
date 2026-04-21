@@ -79,15 +79,67 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
+.filtros-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .filtros-scroll {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
   scrollbar-width: none;
   padding-bottom: 2px;
+  flex: 1;
 }
 
 .filtros-scroll::-webkit-scrollbar { display: none; }
+
+/* toggle cuadrícula / mapa */
+.vista-toggle {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  background: var(--color-bg);
+  border-radius: 100px;
+  padding: 3px;
+  border: 1.5px solid var(--color-border);
+}
+
+.toggle-btn {
+  width: 34px;
+  height: 30px;
+  border: none;
+  border-radius: 100px;
+  background: transparent;
+  color: var(--color-mid);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.toggle-btn svg { width: 16px; height: 16px; }
+
+.toggle-btn.activo {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 1px 6px rgba(91,110,191,0.35);
+}
+
+.toggle-btn:hover:not(.activo) {
+  background: rgba(91,110,191,0.08);
+  color: var(--color-accent);
+}
+
+/* sección de mapa */
+.map-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
 
 .pill {
   flex-shrink: 0;

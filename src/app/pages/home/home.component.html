@@ -19,49 +19,76 @@
   </div>
 </section>
 
-<!-- filtros de categoría en pills -->
+<!-- filtros de categoría + toggle de vista -->
 <section class="filtros-section">
-  <div class="filtros-scroll">
-    @for (cat of categorias; track cat.id) {
-      <button
-        class="pill"
-        [class.activa]="categoriaActiva === cat.id"
-        (click)="seleccionarCategoria(cat.id)"
-      >
-        {{ cat.label }}
+  <div class="filtros-bar">
+    <div class="filtros-scroll">
+      @for (cat of categorias; track cat.id) {
+        <button
+          class="pill"
+          [class.activa]="categoriaActiva === cat.id"
+          (click)="seleccionarCategoria(cat.id)"
+        >
+          {{ cat.label }}
+        </button>
+      }
+    </div>
+
+    <!-- toggle cuadrícula / mapa -->
+    <div class="vista-toggle">
+      <button class="toggle-btn" [class.activo]="vista === 'cuadricula'" (click)="vista = 'cuadricula'" title="Vista cuadrícula">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
       </button>
-    }
+      <button class="toggle-btn" [class.activo]="vista === 'mapa'" (click)="vista = 'mapa'" title="Vista mapa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+          <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </section>
 
-<!-- discovery grid -->
-<main class="grid-section">
+<!-- vista cuadrícula -->
+@if (vista === 'cuadricula') {
+  <main class="grid-section">
 
-  @if (cargando) {
-    <div class="discovery-grid">
-      @for (s of skeletons; track $index) {
-        <app-skeleton-card />
-      }
-    </div>
-  } @else if (filtrados.length === 0) {
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <p>No encontramos lugares con ese filtro.</p>
-      <button class="pill activa" (click)="seleccionarCategoria(0)">Ver todos</button>
-    </div>
-  } @else {
-    <div class="discovery-grid">
-      @for (place of filtrados; track place.id) {
-        <app-place-card
-          [place]="place"
-          [liked]="isLiked(place)"
-          [index]="$index"
-          (toggleLike)="onToggleLike($event)"
-        />
-      }
-    </div>
-  }
+    @if (cargando) {
+      <div class="discovery-grid">
+        @for (s of skeletons; track $index) {
+          <app-skeleton-card />
+        }
+      </div>
+    } @else if (filtrados.length === 0) {
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <p>No encontramos lugares con ese filtro.</p>
+        <button class="pill activa" (click)="seleccionarCategoria(0)">Ver todos</button>
+      </div>
+    } @else {
+      <div class="discovery-grid">
+        @for (place of filtrados; track place.id) {
+          <app-place-card
+            [place]="place"
+            [liked]="isLiked(place)"
+            [index]="$index"
+            (toggleLike)="onToggleLike($event)"
+          />
+        }
+      </div>
+    }
 
-</main>
+  </main>
+}
+
+<!-- vista mapa -->
+@if (vista === 'mapa') {
+  <section class="map-section">
+    <app-map [places]="filtrados" />
+  </section>
+}

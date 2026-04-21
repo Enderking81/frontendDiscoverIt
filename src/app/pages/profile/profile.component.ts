@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, AuthUser, FullProfile } from '../../core/services/auth.service';
+import { PlacesService, Place } from '../../core/services/places.service';
+import { PlaceCardComponent } from '../../components/place-card/place-card.component';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule]
+  imports: [CommonModule, RouterLink, FormsModule, PlaceCardComponent]
 })
 export class ProfileComponent implements OnInit {
   usuario: AuthUser | null = null;
@@ -24,11 +26,17 @@ export class ProfileComponent implements OnInit {
   editError = '';
   editExito = false;
 
-  constructor(private auth: AuthService) {}
+  // sección de favoritos
+  favoritos: Place[] = [];
+  likedIds = new Set<number>();
+  cargandoFavoritos = true;
+
+  constructor(private auth: AuthService, private places: PlacesService) {}
 
   ngOnInit() {
     this.auth.currentUser$.subscribe(u => this.usuario = u);
     this.cargarPerfil();
+    this.cargarFavoritos();
   }
 
   cargarPerfil() {
@@ -36,6 +44,18 @@ export class ProfileComponent implements OnInit {
     this.auth.getFullProfile().subscribe({
       next: (p) => { this.perfil = p; this.cargando = false; },
       error: () => { this.cargando = false; }
+    });
+  }
+
+  cargarFavoritos() {
+    this.cargandoFavoritos = true;
+    this.places.getMyLikes().subscribe({
+      next: (likes: any[]) => {
+        this.favoritos = likes.map(l => l.Place_Product).filter(Boolean);
+        this.favoritos.forEach(p => this.likedIds.add(p.id));
+        this.cargandoFavoritos = false;
+      },
+      error: () => { this.cargandoFavoritos = false; }
     });
   }
 
@@ -74,7 +94,7 @@ export class ProfileComponent implements OnInit {
         this.guardando = false;
         this.editando  = false;
         this.editExito = true;
-        this.cargarPerfil();           // recarga el perfil completo con los nuevos datos
+        this.cargarPerfil();
         setTimeout(() => this.editExito = false, 3000);
       },
       error: (err) => {
@@ -82,5 +102,12 @@ export class ProfileComponent implements OnInit {
         this.guardando = false;
       }
     });
+  }
+
+  onToggleLike(place: Place) {
+    // quitamos el favorito y lo removemos de la lista (UX optimista)
+    this.favoritos = this.favoritos.filter(p => p.id !== place.id);
+    this.likedIds.delete(place.id);
+    this.places.toggleLike(place.id, true).subscribe();
   }
 }

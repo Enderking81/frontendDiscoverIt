@@ -11,6 +11,9 @@
         <li class="dropdown-item usuario-info">Hola, {{ usuario.nickname }}</li>
         <li class="dropdown-item"><a routerLink="/">Inicio</a></li>
         <li class="dropdown-item"><a routerLink="/profile">Mi cuenta</a></li>
+        @if (usuario.isAdmin) {
+          <li class="dropdown-item admin-item"><a routerLink="/admin">Panel de Admin</a></li>
+        }
         <li class="dropdown-item" (click)="cerrarSesion()">Cerrar sesión</li>
       } @else {
         <!-- usuario no logueado -->

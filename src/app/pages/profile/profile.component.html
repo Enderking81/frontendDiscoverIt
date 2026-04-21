@@ -144,5 +144,35 @@
     </div>
 
   }
+
+  <!-- sección mis favoritos -->
+  <section class="favoritos-section">
+    <div class="favoritos-header">
+      <h2 class="section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        Mis Favoritos
+      </h2>
+      @if (favoritos.length > 0) {
+        <a routerLink="/my-likes" class="ver-todos-link">Ver todos →</a>
+      }
+    </div>
+
+    @if (cargandoFavoritos) {
+      <div class="fav-scroll"><div class="skeleton fav-skeleton"></div><div class="skeleton fav-skeleton"></div><div class="skeleton fav-skeleton"></div></div>
+    } @else if (favoritos.length === 0) {
+      <p class="fav-empty">Todavía no marcaste ningún lugar como favorito. ¡Explorá y guardá los que más te gusten!</p>
+    } @else {
+      <div class="fav-scroll">
+        @for (place of favoritos; track place.id) {
+          <div class="fav-card-wrap">
+            <app-place-card [place]="place" [liked]="true" [index]="$index" (toggleLike)="onToggleLike($event)" />
+          </div>
+        }
+      </div>
+    }
+  </section>
+
 </div>
 }

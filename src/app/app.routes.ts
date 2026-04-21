@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '',
@@ -11,7 +12,6 @@ export const routes: Routes = [
   { path: 'register',
     loadComponent: () => import('./auth/register.component').then(m => m.RegisterComponent)
   },
-  // rutas protegidas — requieren estar logueado
   { path: 'places/:id',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/place-detail/place-detail.component').then(m => m.PlaceDetailComponent)
@@ -23,6 +23,10 @@ export const routes: Routes = [
   { path: 'my-likes',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/my-likes/my-likes.component').then(m => m.MyLikesComponent)
+  },
+  { path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent)
   },
   { path: '**', redirectTo: '' }
 ];

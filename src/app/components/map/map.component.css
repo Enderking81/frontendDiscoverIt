@@ -1,0 +1,15 @@
+.map-wrap {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-hover);
+  height: 520px;
+}
+
+.map-canvas {
+  height: 100%;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .map-wrap { height: 380px; border-radius: 1rem; }
+}

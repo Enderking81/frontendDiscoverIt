@@ -1,0 +1,165 @@
+<div class="admin-page">
+
+  <!-- encabezado del panel -->
+  <div class="admin-header">
+    <div>
+      <h1 class="admin-title">Panel de Administración</h1>
+      <p class="admin-subtitle">DiscoverIt · Sistema de gestión de contenido</p>
+    </div>
+    <span class="admin-badge">Admin</span>
+  </div>
+
+  <!-- stat cards -->
+  <div class="stats-grid">
+    @for (card of statCards; track card.key) {
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="card.color + '18'" [style.color]="card.color">
+          @switch (card.icon) {
+            @case ('users') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            }
+            @case ('map-pin') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            }
+            @case ('star') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            }
+            @case ('chat') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            }
+          }
+        </div>
+        <div class="stat-info">
+          <span class="stat-num">{{ statValue(card.key) }}</span>
+          <span class="stat-label">{{ card.label }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- tabla de gestión de lugares -->
+  <div class="table-card">
+    <div class="table-header">
+      <h2 class="table-title">Gestión de Lugares</h2>
+      <div class="table-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="search" placeholder="Buscar por nombre..." (input)="onBusqueda($event)" />
+      </div>
+    </div>
+
+    @if (cargando) {
+      <div class="table-loading">
+        @for (s of [1,2,3,4]; track s) {
+          <div class="skeleton row-skeleton"></div>
+        }
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="col-id">#</th>
+              <th>Nombre</th>
+              <th class="col-cat">Categoría</th>
+              <th class="col-rating">★ Rating</th>
+              <th class="col-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (place of filtrados; track place.id) {
+              <tr [class.editing]="editandoId === place.id">
+                <td class="col-id text-mid">{{ place.id }}</td>
+                <td>
+                  <div class="place-cell">
+                    <img [src]="place.image.replace('w=1600','w=60').replace('q=90','q=50')" [alt]="place.name" class="place-thumb" />
+                    <span class="place-name">{{ place.name }}</span>
+                  </div>
+                </td>
+                <td class="col-cat">
+                  <span class="cat-tag">{{ getCatName(place.categoryId) }}</span>
+                </td>
+                <td class="col-rating">
+                  <span class="rating-val">{{ place.average_rating?.toFixed(1) ?? '—' }}</span>
+                </td>
+                <td class="col-actions">
+                  @if (eliminandoId === place.id) {
+                    <div class="confirm-delete">
+                      <span>¿Eliminar?</span>
+                      <button class="btn-confirm" (click)="eliminar(place.id)">Sí</button>
+                      <button class="btn-cancel-sm" (click)="cancelarEliminar()">No</button>
+                    </div>
+                  } @else {
+                    <button class="action-btn edit-btn"   (click)="abrirEdicion(place)"     title="Editar">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="action-btn delete-btn" (click)="confirmarEliminar(place.id)" title="Eliminar">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    </button>
+                  }
+                </td>
+              </tr>
+
+              <!-- fila de edición inline -->
+              @if (editandoId === place.id) {
+                <tr class="edit-row">
+                  <td colspan="5">
+                    <div class="edit-panel">
+                      <div class="edit-grid">
+                        <div class="edit-field">
+                          <label>Nombre</label>
+                          <input type="text" [(ngModel)]="editForm.name" />
+                        </div>
+                        <div class="edit-field">
+                          <label>Categoría</label>
+                          <select [(ngModel)]="editForm.categoryId">
+                            @for (cat of categorias; track cat.id) {
+                              <option [value]="cat.id">{{ cat.name }}</option>
+                            }
+                          </select>
+                        </div>
+                        <div class="edit-field full-width">
+                          <label>Ubicación</label>
+                          <input type="text" [(ngModel)]="editForm.location" />
+                        </div>
+                        <div class="edit-field full-width">
+                          <label>Descripción</label>
+                          <textarea [(ngModel)]="editForm.description" rows="2"></textarea>
+                        </div>
+                        <div class="edit-field full-width">
+                          <label>URL de imagen</label>
+                          <input type="url" [(ngModel)]="editForm.image" />
+                        </div>
+                      </div>
+                      <div class="edit-actions">
+                        <button class="btn-cancel-sm" (click)="cancelarEdicion()" [disabled]="guardando">Cancelar</button>
+                        <button class="btn-save-sm"   (click)="guardar(place.id)" [disabled]="guardando">
+                          {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+
+        @if (filtrados.length === 0) {
+          <div class="table-empty">No se encontraron lugares con ese filtro.</div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

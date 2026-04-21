@@ -4,6 +4,7 @@ import { PlacesService, Place } from '../../core/services/places.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PlaceCardComponent } from '../../components/place-card/place-card.component';
 import { SkeletonCardComponent } from '../../components/skeleton-card/skeleton-card.component';
+import { MapComponent } from '../../components/map/map.component';
 
 // categorías para los filtros en pills (sincronizadas con el seeder)
 const CATEGORIAS = [
@@ -23,7 +24,7 @@ const CATEGORIAS = [
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   standalone: true,
-  imports: [CommonModule, PlaceCardComponent, SkeletonCardComponent]
+  imports: [CommonModule, PlaceCardComponent, SkeletonCardComponent, MapComponent]
 })
 export class HomeComponent implements OnInit {
   todos: Place[] = [];
@@ -32,13 +33,13 @@ export class HomeComponent implements OnInit {
   cargando = true;
   categoriaActiva = 0;
   busqueda = '';
+  vista: 'cuadricula' | 'mapa' = 'cuadricula';
   readonly categorias = CATEGORIAS;
-  readonly skeletons = Array(8); // 8 placeholders de skeleton
+  readonly skeletons = Array(8);
 
   constructor(private places: PlacesService, private auth: AuthService) {}
 
   ngOnInit() {
-    // carga lugares y likes del usuario en paralelo
     this.places.getAll().subscribe({
       next: (data) => {
         this.todos = data;
@@ -48,7 +49,6 @@ export class HomeComponent implements OnInit {
       error: () => { this.cargando = false; }
     });
 
-    // solo carga los likes si el usuario está logueado
     if (this.auth.estaLogueado()) {
       this.places.getMyLikes().subscribe({
         next: (likes) => likes.forEach(l => this.likedIds.add(l.placeProductId))
@@ -81,7 +81,6 @@ export class HomeComponent implements OnInit {
     this.places.toggleLike(place.id, liked).subscribe({
       next: () => {
         liked ? this.likedIds.delete(place.id) : this.likedIds.add(place.id);
-        // forzamos detección de cambios con un nuevo Set
         this.likedIds = new Set(this.likedIds);
       }
     });

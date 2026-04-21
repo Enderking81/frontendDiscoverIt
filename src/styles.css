@@ -48,6 +48,122 @@ html, body {
 /* scroll suave global */
 html { scroll-behavior: smooth; }
 
+/* ── Leaflet: marker pin personalizado ── */
+.di-pin {
+  width: 38px;
+  height: 38px;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(91,110,191,0.45);
+  border: 2px solid #fff;
+}
+
+.di-pin svg {
+  transform: rotate(45deg);
+}
+
+/* ── Leaflet: popup minimalista ── */
+.di-popup-wrap .leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  border: none;
+}
+
+.di-popup-wrap .leaflet-popup-content {
+  margin: 0;
+  width: 220px !important;
+}
+
+.di-popup-wrap .leaflet-popup-tip-container { display: none; }
+
+.di-popup img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  display: block;
+}
+
+.di-popup-body {
+  padding: 10px 14px 12px;
+}
+
+.di-popup-body h4 {
+  margin: 0 0 3px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.di-popup-cat {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--color-mid);
+  margin-bottom: 7px;
+}
+
+.di-popup-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.di-popup-link:hover { text-decoration: underline; }
+
+/* ── Dark Mode ── */
+.dark {
+  --color-bg:       #111114;
+  --color-surface:  #1C1C1E;
+  --color-text:     #F5F5F7;
+  --color-mid:      #8E8E93;
+  --color-border:   rgba(255,255,255,0.10);
+  --color-accent:   #7B8DD9;
+  --color-accent-h: #9BAEE8;
+  --shadow-card:    0 2px 20px rgba(0,0,0,0.35);
+  --shadow-hover:   0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* navbar glassmorphism oscuro */
+.dark .navbar {
+  background: rgba(17,17,20,0.88);
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+
+/* hero oscuro */
+.dark .hero {
+  background: linear-gradient(135deg, #1a1f3c 0%, #111114 60%);
+  border-bottom-color: rgba(255,255,255,0.07);
+}
+
+/* barra de búsqueda */
+.dark .search-input {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* filtros */
+.dark .filtros-section { background: var(--color-surface); border-bottom-color: var(--color-border); }
+.dark .pill            { background: var(--color-surface); color: var(--color-mid); border-color: var(--color-border); }
+.dark .vista-toggle    { border-color: var(--color-border); background: #111114; }
+
+/* sidebar glassmorphism oscuro */
+.dark .sidebar-overlay { background: rgba(0,0,0,0.6); }
+
+/* cards de actividad en el perfil */
+.dark .activity-card,
+.dark .info-card,
+.dark .stat-card { background: var(--color-surface); border-color: var(--color-border); }
+
 /* remover outline por defecto y reemplazar con estilo Apple */
 :focus-visible {
   outline: 2px solid var(--color-accent);

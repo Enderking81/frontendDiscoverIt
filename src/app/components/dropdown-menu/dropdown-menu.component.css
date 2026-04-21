@@ -67,3 +67,11 @@
 }
 
 .usuario-info:hover { background: none; }
+
+.admin-item a { color: var(--color-accent); font-weight: 600; }
+
+/* dropdown glassmorphism oscuro */
+.dark .dropdown-menu {
+  background: rgba(28,28,30,0.94);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08);
+}

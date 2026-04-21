@@ -11,6 +11,8 @@ export interface Place {
   categoryId: number;
   image: string;
   average_rating: number | null;
+  latitude: number | null;
+  longitude: number | null;
   Category?: { name: string };
 }
 
