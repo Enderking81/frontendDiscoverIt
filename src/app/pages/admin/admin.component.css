@@ -1,19 +1,21 @@
 .admin-page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.25rem 1rem 3rem;
 }
 
 /* encabezado */
 .admin-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .admin-title {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0 0 0.2rem;
@@ -31,7 +33,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   color: #fff;
   padding: 0.3rem 0.8rem;
   border-radius: 100px;
@@ -40,7 +42,7 @@
 /* stats cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -49,16 +51,17 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 1rem;
-  padding: 1.2rem 1.4rem;
+  padding: 1rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  min-width: 0; /* sin esto la card no se achica y desborda la pantalla en celulares */
   box-shadow: var(--shadow-card);
 }
 
 .stat-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -68,7 +71,7 @@
 
 .stat-icon svg { width: 20px; height: 20px; }
 
-.stat-info { display: flex; flex-direction: column; gap: 0.15rem; }
+.stat-info { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
 
 .stat-num {
   font-size: 1.6rem;
@@ -83,6 +86,9 @@
   font-size: 0.8rem;
   color: var(--color-mid);
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* tabla */
@@ -96,10 +102,12 @@
 
 .table-header {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   padding: 1.2rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .table-title {
@@ -126,7 +134,7 @@
   outline: none;
   font-size: 0.875rem;
   color: var(--color-text);
-  width: 200px;
+  width: 100%;
   font-family: inherit;
 }
 
@@ -165,8 +173,12 @@
 .data-table tbody tr.editing { background: rgba(91,110,191,0.06); }
 
 .col-id      { width: 52px;  }
-.col-cat     { width: 140px; }
-.col-rating  { width: 90px;  }
+.col-cat     { width: 140px;
+  display: none;
+}
+.col-rating  { width: 90px;
+  display: none;
+}
 .col-actions { width: 110px; }
 
 .place-cell {
@@ -197,7 +209,7 @@
   display: inline-block;
   padding: 0.2rem 0.6rem;
   background: rgba(91,110,191,0.1);
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -206,7 +218,7 @@
 .rating-val {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: #FF9F0A;
+  color: var(--color-rating);
 }
 
 .text-mid { color: var(--color-mid); font-variant-numeric: tabular-nums; }
@@ -241,7 +253,7 @@
 
 .btn-confirm {
   padding: 0.25rem 0.65rem;
-  background: #FF453A;
+  background: var(--color-danger);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -275,7 +287,7 @@
 
 .edit-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.85rem;
   margin-bottom: 1rem;
 }
@@ -321,7 +333,7 @@
 
 .btn-save-sm {
   padding: 0.3rem 1rem;
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -332,7 +344,7 @@
   transition: background 0.15s;
 }
 
-.btn-save-sm:hover:not(:disabled) { background: var(--color-accent-h); }
+.btn-save-sm:hover:not(:disabled) { background: var(--color-accent-fill-h); }
 .btn-save-sm:disabled, .btn-cancel-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* loading / empty */
@@ -341,15 +353,84 @@
 .table-empty   { padding: 2.5rem; text-align: center; color: var(--color-mid); font-size: 0.9rem; }
 
 /* responsive */
-@media (max-width: 900px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .col-cat, .col-rating { display: none; }
+/* pestañas y acciones de alta */
+.tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 1.2rem;
+  border-radius: 100px;
+  background: var(--color-surface, rgba(0, 0, 0, 0.04));
 }
 
-@media (max-width: 640px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .admin-page { padding: 1.2rem 1rem 3rem; }
-  .table-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
-  .table-search input { width: 140px; }
-  .edit-grid { grid-template-columns: 1fr; }
+.tab {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 1.2rem;
+  border-radius: 100px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: var(--color-mid);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tab.active {
+  background: var(--color-accent-fill);
+  color: #fff;
+}
+
+.table-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.table-tools .table-search { flex: 1 1 180px; }
+
+.btn-new {
+  background: var(--color-accent-fill);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-new:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.create-panel {
+  margin: 0 1rem 1rem;
+  border-radius: 1rem;
+}
+
+.panel-title {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* responsive (mobile-first) */
+@media (min-width: 640px) {
+  .admin-page { padding: 2rem 1.5rem 4rem; }
+  .admin-header { margin-bottom: 2rem; }
+  .admin-title { font-size: 1.6rem; }
+  .stat-card { padding: 1.2rem 1.4rem; gap: 1rem; }
+  .table-header { flex-direction: row; align-items: center; }
+  .table-search input { width: 200px; }
+  .edit-grid { grid-template-columns: 1fr 1fr; }
+  .create-panel { margin: 0 1.5rem 1.5rem; }
+}
+
+@media (min-width: 768px) {
+  .col-cat, .col-rating { display: table-cell; }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
 }

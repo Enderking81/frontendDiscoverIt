@@ -1,15 +1,39 @@
 .map-wrap {
-  border-radius: 1.5rem;
+  position: relative;
+  isolation: isolate; /* los z-index internos de Leaflet no compiten con el header ni el sidebar */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
   overflow: hidden;
   box-shadow: var(--shadow-hover);
-  height: 520px;
+  height: 380px;
 }
 
 .map-canvas {
   height: 100%;
   width: 100%;
+  z-index: 0; /* evita que los controles de Leaflet queden encima del header */
 }
 
-@media (max-width: 640px) {
-  .map-wrap { height: 380px; border-radius: 1rem; }
+.map-empty {
+  position: absolute;
+  inset: auto 1rem 1rem;
+  z-index: 500;
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-mid);
+  background: var(--glass-strong);
+  box-shadow: var(--shadow-card);
+}
+
+/* responsive (mobile-first) */
+@media (min-width: 640px) {
+  .map-wrap { height: 460px; border-radius: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .map-wrap { height: 560px; }
 }

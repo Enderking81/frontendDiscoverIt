@@ -1,7 +1,7 @@
 /* hero */
 .hero {
-  background: linear-gradient(135deg, #f0f4ff 0%, #fafafa 60%);
-  padding: 5rem 2rem 3.5rem;
+  background: var(--hero-bg);
+  padding: 3rem 1.25rem 2.5rem;
   text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
@@ -54,7 +54,7 @@
   padding: 0.8rem 1rem 0.8rem 2.8rem;
   border: 1.5px solid var(--color-border);
   border-radius: 100px;
-  background: #fff;
+  background: var(--color-surface);
   font-size: 0.95rem;
   font-family: inherit;
   color: var(--color-text);
@@ -72,7 +72,7 @@
 .filtros-section {
   padding: 1.2rem 1.5rem;
   border-bottom: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   position: sticky;
   top: 64px;
   z-index: 10;
@@ -124,7 +124,7 @@
 .toggle-btn svg { width: 16px; height: 16px; }
 
 .toggle-btn.activo {
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   color: #fff;
   box-shadow: 0 1px 6px rgba(91,110,191,0.35);
 }
@@ -146,7 +146,7 @@
   padding: 0.45rem 1.1rem;
   border-radius: 100px;
   border: 1.5px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-mid);
   font-size: 0.85rem;
   font-weight: 500;
@@ -159,7 +159,7 @@
 .pill:hover { border-color: var(--color-accent); color: var(--color-accent); }
 
 .pill.activa {
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   border-color: var(--color-accent);
   color: #fff;
   box-shadow: 0 2px 8px rgba(91,110,191,0.3);
@@ -169,12 +169,12 @@
 .grid-section {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.5rem 1rem 3rem;
 }
 
 .discovery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.4rem;
 }
 
@@ -201,9 +201,17 @@
   margin: 0;
 }
 
-/* responsive */
-@media (max-width: 640px) {
-  .hero { padding: 3.5rem 1.2rem 2.5rem; }
-  .grid-section { padding: 1.5rem 1rem 3rem; }
-  .discovery-grid { grid-template-columns: 1fr; }
+/* responsive (mobile-first) */
+@media (min-width: 640px) {
+  .discovery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+  .hero { padding: 4.5rem 2rem 3.5rem; }
+  .grid-section { padding: 2rem 1.5rem 4rem; }
+}
+
+@media (min-width: 1024px) {
+  .hero { padding: 5.5rem 2rem 4rem; }
+  .discovery-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 }
