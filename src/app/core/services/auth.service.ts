@@ -1,85 +1,86 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Session, User } from '../models';
 
-export interface AuthUser {
-  id: number;
-  nickname: string;
-  email: string;
-  isAdmin: boolean;
-}
+const TOKEN_KEY = 'discoverit_token';
+const USER_KEY = 'discoverit_user';
 
-export interface FullProfile {
-  id: number;
-  nickname: string;
-  email: string;
-  isAdmin: boolean;
-  seller: boolean;
-  Profile: { bio: string | null; avatar: string | null; location: string | null; birthdate: string | null } | null;
-  Comments: Array<{ id: number; comment_text: string; datetimecomment: string; Place_Product: { id: number; name: string } }>;
-  Recommendations: Array<{ id: number; points: number; description: string; Place_Product: { id: number; name: string } }>;
-  stats: { comentarios: number; recomendaciones: number; likes: number };
-}
-
+// maneja la sesión: login, registro, logout y el usuario actual
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API      = 'http://localhost:3000/auth';
-  private readonly TOKEN_KEY = 'discoverit_token';
-  private readonly USER_KEY  = 'discoverit_user';
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+  private readonly url = `${environment.apiUrl}/auth`;
 
-  // BehaviorSubject: cualquier componente puede reaccionar al cambio de sesión
-  currentUser$ = new BehaviorSubject<AuthUser | null>(this.getUserFromStorage());
+  // cualquier componente puede suscribirse para reaccionar a los cambios de sesión
+  readonly currentUser$ = new BehaviorSubject<User | null>(this.readStoredUser());
 
-  constructor(private http: HttpClient, private router: Router) {}
-
-  login(email: string, password: string) {
-    return this.http.post<{ token: string; user: AuthUser }>(`${this.API}/login`, { email, password })
-      .pipe(tap(res => this.guardarSesion(res.token, res.user)));
+  login(email: string, password: string): Observable<Session> {
+    return this.http.post<Session>(`${this.url}/login`, { email, password })
+      .pipe(tap((session) => this.saveSession(session)));
   }
 
-  register(nickname: string, email: string, password: string, seller = false) {
-    return this.http.post<{ token: string; user: AuthUser }>(`${this.API}/register`, { nickname, email, password, seller })
-      .pipe(tap(res => this.guardarSesion(res.token, res.user)));
+  register(nickname: string, email: string, password: string): Observable<Session> {
+    return this.http.post<Session>(`${this.url}/register`, { nickname, email, password })
+      .pipe(tap((session) => this.saveSession(session)));
   }
 
-  // devuelve el perfil completo con stats, comentarios y recomendaciones
-  getFullProfile() {
-    return this.http.get<FullProfile>(`${this.API}/profile`, this.authHeaders());
-  }
-
-  // actualiza nickname y/o bio — también refresca el token con el nuevo nickname
-  updateProfile(data: { nickname?: string; bio?: string }) {
-    return this.http.put<{ token: string; user: AuthUser; bio: string | null }>(
-      `${this.API}/profile`, data, this.authHeaders()
-    ).pipe(
-      tap(res => this.guardarSesion(res.token, res.user))
-    );
-  }
-
-  logout() {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    this.currentUser$.next(null);
+  logout(): void {
+    this.clearSession();
     this.router.navigate(['/login']);
   }
 
-  getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
-  estaLogueado(): boolean   { return !!this.getToken(); }
+  getToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
+  }
 
-  private guardarSesion(token: string, user: AuthUser) {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  // la sesión es válida si hay token y todavía no venció
+  isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    if (this.isExpired(token)) {
+      this.clearSession();
+      return false;
+    }
+    return true;
+  }
+
+  isAdmin(): boolean {
+    return this.isLoggedIn() && !!this.currentUser$.value?.isAdmin;
+  }
+
+  // se usa cuando el usuario edita su nickname desde el perfil
+  updateStoredUser(user: User): void {
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
     this.currentUser$.next(user);
   }
 
-  private getUserFromStorage(): AuthUser | null {
-    const raw = localStorage.getItem(this.USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+  clearSession(): void {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    this.currentUser$.next(null);
   }
 
-  private authHeaders() {
-    const token = this.getToken();
-    return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+  private saveSession({ token, user }: Session): void {
+    localStorage.setItem(TOKEN_KEY, token);
+    this.updateStoredUser(user);
+  }
+
+  private readStoredUser(): User | null {
+    const raw = localStorage.getItem(USER_KEY);
+    return raw ? (JSON.parse(raw) as User) : null;
+  }
+
+  // lee el campo exp del payload del JWT (no verifica la firma, eso lo hace el backend)
+  private isExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return typeof payload.exp === 'number' && payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   }
 }

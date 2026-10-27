@@ -2,13 +2,8 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-// guard funcional que protege rutas de administrador
+// protege las rutas de administrador (el backend también lo valida en cada endpoint)
 export const adminGuard: CanActivateFn = () => {
-  const auth   = inject(AuthService);
-  const router = inject(Router);
-
-  const user = auth.currentUser$.getValue();
-  if (user?.isAdmin) return true;
-
-  return router.createUrlTree(['/']);
+  if (inject(AuthService).isAdmin()) return true;
+  return inject(Router).createUrlTree(['/']);
 };
