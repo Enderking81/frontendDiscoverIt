@@ -1,90 +1,106 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PlacesService, Place } from '../../core/services/places.service';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { PlaceService } from '../../core/services/place.service';
+import { CategoryService } from '../../core/services/category.service';
+import { FavoriteService } from '../../core/services/favorite.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Category, Place, PlaceFilters } from '../../core/models';
 import { PlaceCardComponent } from '../../components/place-card/place-card.component';
 import { SkeletonCardComponent } from '../../components/skeleton-card/skeleton-card.component';
 import { MapComponent } from '../../components/map/map.component';
 
-// categorías para los filtros en pills (sincronizadas con el seeder)
-const CATEGORIAS = [
-  { id: 0,  label: 'Todos' },
-  { id: 1,  label: 'Restaurantes' },
-  { id: 2,  label: 'Museos' },
-  { id: 3,  label: 'Bares' },
-  { id: 4,  label: 'Parques' },
-  { id: 5,  label: 'Hoteles' },
-  { id: 6,  label: 'Cafeterías' },
-  { id: 7,  label: 'Tiendas' },
-  { id: 8,  label: 'Entretenimiento' },
-];
+type ViewMode = 'grid' | 'map';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   standalone: true,
-  imports: [CommonModule, PlaceCardComponent, SkeletonCardComponent, MapComponent]
+  imports: [PlaceCardComponent, SkeletonCardComponent, MapComponent]
 })
 export class HomeComponent implements OnInit {
-  todos: Place[] = [];
-  filtrados: Place[] = [];
-  likedIds = new Set<number>();
-  cargando = true;
-  categoriaActiva = 0;
-  busqueda = '';
-  vista: 'cuadricula' | 'mapa' = 'cuadricula';
-  readonly categorias = CATEGORIAS;
+  private readonly placeService = inject(PlaceService);
+  private readonly categoryService = inject(CategoryService);
+  private readonly favoriteService = inject(FavoriteService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // cada cambio de filtro dispara una nueva búsqueda en el backend
+  private readonly filters$ = new BehaviorSubject<PlaceFilters>({});
+  private readonly searchInput$ = new Subject<string>();
+
+  places: Place[] = [];
+  categories: Category[] = [];
+  favoriteIds = new Set<number>();
+  loading = true;
+  activeCategoryId = 0; // 0 = todas las categorías
+  searchTerm = '';
+  view: ViewMode = 'grid';
   readonly skeletons = Array(8);
 
-  constructor(private places: PlacesService, private auth: AuthService) {}
-
   ngOnInit() {
-    this.places.getAll().subscribe({
-      next: (data) => {
-        this.todos = data;
-        this.aplicarFiltros();
-        this.cargando = false;
-      },
-      error: () => { this.cargando = false; }
+    this.categoryService.list().subscribe((categories) => (this.categories = categories));
+
+    // switchMap descarta la respuesta anterior si el usuario cambia el filtro antes de que llegue
+    this.filters$.pipe(
+      tap(() => (this.loading = true)),
+      switchMap((filters) => this.placeService.list(filters).pipe(catchError(() => of([])))),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((places) => {
+      this.places = places;
+      this.loading = false;
     });
 
-    if (this.auth.estaLogueado()) {
-      this.places.getMyLikes().subscribe({
-        next: (likes) => likes.forEach(l => this.likedIds.add(l.placeProductId))
-      });
+    // espera a que el usuario deje de escribir para no pedir en cada tecla
+    this.searchInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((term) => {
+      this.searchTerm = term;
+      this.applyFilters();
+    });
+
+    if (this.auth.isLoggedIn()) {
+      this.favoriteService.list().subscribe((favorites) => (this.favoriteIds = new Set(favorites.map((p) => p.id))));
     }
   }
 
-  seleccionarCategoria(id: number) {
-    this.categoriaActiva = id;
-    this.aplicarFiltros();
+  onSearch(event: Event) {
+    this.searchInput$.next((event.target as HTMLInputElement).value);
   }
 
-  onBusqueda(e: Event) {
-    this.busqueda = (e.target as HTMLInputElement).value.toLowerCase();
-    this.aplicarFiltros();
+  selectCategory(id: number) {
+    this.activeCategoryId = id;
+    this.applyFilters();
   }
 
-  aplicarFiltros() {
-    this.filtrados = this.todos.filter(p => {
-      const matchCategoria = this.categoriaActiva === 0 || p.categoryId === this.categoriaActiva;
-      const matchBusqueda  = !this.busqueda || p.name.toLowerCase().includes(this.busqueda)
-                                            || p.location.toLowerCase().includes(this.busqueda);
-      return matchCategoria && matchBusqueda;
+  clearFilters() {
+    this.activeCategoryId = 0;
+    this.searchTerm = '';
+    this.searchInput$.next('');
+    this.applyFilters();
+  }
+
+  onToggleFavorite(place: Place) {
+    // un invitado que quiere guardar un favorito primero tiene que iniciar sesión
+    if (!this.auth.isLoggedIn()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: '/' } });
+      return;
+    }
+    const isFavorite = this.favoriteIds.has(place.id);
+    this.favoriteService.toggle(place.id, isFavorite).subscribe(() => {
+      const ids = new Set(this.favoriteIds);
+      if (isFavorite) ids.delete(place.id);
+      else ids.add(place.id);
+      this.favoriteIds = ids;
     });
   }
 
-  onToggleLike(place: Place) {
-    if (!this.auth.estaLogueado()) return;
-    const liked = this.likedIds.has(place.id);
-    this.places.toggleLike(place.id, liked).subscribe({
-      next: () => {
-        liked ? this.likedIds.delete(place.id) : this.likedIds.add(place.id);
-        this.likedIds = new Set(this.likedIds);
-      }
-    });
+  private applyFilters() {
+    this.filters$.next({ categoryId: this.activeCategoryId || undefined, search: this.searchTerm });
   }
-
-  isLiked(place: Place) { return this.likedIds.has(place.id); }
 }

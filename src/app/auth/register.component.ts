@@ -1,43 +1,47 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
+  styleUrl: './auth-form.css',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink]
+  imports: [ReactiveFormsModule, RouterLink]
 })
 export class RegisterComponent {
-  form: FormGroup;
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  // mismas reglas que valida el backend
+  readonly form = inject(FormBuilder).nonNullable.group({
+    nickname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
+    email:    ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]]
+  });
   errorMsg = '';
-  cargando = false;
+  loading = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    if (this.auth.estaLogueado()) this.router.navigate(['/']);
-
-    this.form = this.fb.group({
-      nickname: ['', [Validators.required, Validators.minLength(3)]],
-      email:    ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      seller:   [false]
-    });
+  constructor() {
+    if (this.auth.isLoggedIn()) this.router.navigate(['/']);
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
-    this.cargando = true;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.loading = true;
     this.errorMsg = '';
 
-    const { nickname, email, password, seller } = this.form.value;
-    this.auth.register(nickname, email, password, seller).subscribe({
+    const { nickname, email, password } = this.form.getRawValue();
+    this.auth.register(nickname, email, password).subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Error al registrarse';
-        this.cargando = false;
+      error: (err: HttpErrorResponse) => {
+        this.errorMsg = err.error?.details?.[0]?.message ?? err.error?.error ?? 'Error al registrarse';
+        this.loading = false;
       }
     });
   }

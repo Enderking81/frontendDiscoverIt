@@ -2,7 +2,7 @@
 <div
   class="backdrop"
   [class.visible]="isOpen"
-  (click)="cerrar()"
+  (click)="close()"
   aria-hidden="true"
 ></div>
 
@@ -12,8 +12,7 @@
   <!-- encabezado del sidebar -->
   <div class="sidebar-header">
     <img src="assets/Discoverit2.png" alt="DiscoverIt" class="sb-logo" />
-    <span class="sb-brand">DiscoverIt</span>
-    <button class="close-btn" (click)="cerrar()" aria-label="Cerrar menú">
+    <button class="close-btn" (click)="close()" aria-label="Cerrar menú">
       <!-- ícono X -->
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <path d="M18 6 6 18M6 6l12 12"/>
@@ -22,13 +21,13 @@
   </div>
 
   <!-- avatar + datos del usuario -->
-  @if (usuario) {
+  @if (user) {
     <div class="user-card">
-      <div class="avatar">{{ usuario.nickname.charAt(0).toUpperCase() }}</div>
+      <div class="avatar">{{ user.nickname.charAt(0).toUpperCase() }}</div>
       <div class="user-info">
-        <span class="user-name">{{ usuario.nickname }}</span>
-        <span class="user-email">{{ usuario.email }}</span>
-        @if (usuario.isAdmin) {
+        <span class="user-name">{{ user.nickname }}</span>
+        <span class="user-email">{{ user.email }}</span>
+        @if (user.isAdmin) {
           <span class="admin-badge">Admin</span>
         }
       </div>
@@ -37,8 +36,8 @@
     <div class="guest-card">
       <p>¿Ya tenés cuenta?</p>
       <div class="guest-actions">
-        <a class="btn-outline" (click)="navegarY('/login')">Iniciar sesión</a>
-        <a class="btn-solid"   (click)="navegarY('/register')">Registrarse</a>
+        <button type="button" class="btn-outline" (click)="navigateTo('/login')">Iniciar sesión</button>
+        <button type="button" class="btn-solid" (click)="navigateTo('/register')">Registrarse</button>
       </div>
     </div>
   }
@@ -50,12 +49,28 @@
   <nav class="nav-list">
     @for (item of navItems; track item.route) {
       <button
+        type="button"
         class="nav-item"
         [class.active]="router.url === item.route || (item.route !== '/' && router.url.startsWith(item.route))"
-        (click)="navegarY(item.route)"
+        (click)="navigateTo(item.route)"
       >
-        <!-- íconos SVG inline por nombre -->
-        <span class="nav-icon" [innerHTML]="getIcon(item.icon)"></span>
+        <!-- íconos SVG en el template (innerHTML los borraba por sanitización) -->
+        <span class="nav-icon" aria-hidden="true">
+          @switch (item.icon) {
+            @case ('home') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            }
+            @case ('user') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            }
+            @case ('heart') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            }
+            @case ('shield') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            }
+          }
+        </span>
         <span class="nav-label">{{ item.label }}</span>
       </button>
     }
@@ -63,8 +78,8 @@
 
   <!-- footer del sidebar -->
   <div class="sidebar-footer">
-    @if (usuario) {
-      <button class="logout-btn" (click)="cerrarSesion()">
+    @if (user) {
+      <button class="logout-btn" (click)="logout()">
         <!-- ícono log-out -->
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

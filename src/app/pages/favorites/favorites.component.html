@@ -4,13 +4,13 @@
     <p>Los lugares que guardaste para volver a visitar.</p>
   </div>
 
-  @if (cargando) {
+  @if (loading) {
     <div class="discovery-grid">
       @for (s of skeletons; track $index) {
         <app-skeleton-card />
       }
     </div>
-  } @else if (lugares.length === 0) {
+  } @else if (places.length === 0) {
     <div class="empty-state">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -23,11 +23,11 @@
     </div>
   } @else {
     <div class="discovery-grid">
-      @for (place of lugares; track place.id) {
+      @for (place of places; track place.id) {
         <app-place-card
           [place]="place"
           [liked]="true"
-          (toggleLike)="onToggleLike($event)"
+          (toggleLike)="onRemove($event)"
         />
       }
     </div>

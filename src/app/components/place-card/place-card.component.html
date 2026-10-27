@@ -2,7 +2,7 @@
 
   <!-- imagen con gradiente de fallback mientras carga -->
   <div class="card-img-wrap">
-    <app-image-fallback [src]="place.image" [alt]="place.name" [index]="index" />
+    <app-image-fallback [src]="place.image ?? ''" [alt]="place.name" [index]="index" />
 
     <!-- pill de categoría sobre la imagen -->
     @if (place.Category) {
@@ -10,7 +10,7 @@
     }
 
     <!-- botón de like -->
-    <button class="like-btn" [class.liked]="liked" (click)="onToggleLike($event)" aria-label="Me gusta">
+    <button class="like-btn" [class.liked]="liked" (click)="onToggleLike($event)" [attr.aria-label]="liked ? 'Quitar de favoritos' : 'Guardar en favoritos'" [attr.aria-pressed]="liked">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
       </svg>
@@ -31,14 +31,18 @@
     <p class="card-desc">{{ place.description }}</p>
 
     <div class="card-footer">
-      <div class="stars">
-        @for (full of estrellas; track $index) {
-          <svg class="star" [class.full]="full" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        }
-      </div>
-      <span class="rating-num">{{ place.average_rating?.toFixed(1) ?? '—' }}</span>
+      @if (place.average_rating !== null) {
+        <div class="stars" role="img" [attr.aria-label]="place.average_rating + ' de 5 estrellas'">
+          @for (full of stars; track $index) {
+            <svg class="star" [class.full]="full" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          }
+        </div>
+        <span class="rating-num">{{ place.average_rating | number: '1.1-1' }}</span>
+      } @else {
+        <span class="no-rating">Sin reseñas todavía</span>
+      }
     </div>
   </div>
 

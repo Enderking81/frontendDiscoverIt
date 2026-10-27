@@ -1,113 +1,145 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService, AuthUser, FullProfile } from '../../core/services/auth.service';
-import { PlacesService, Place } from '../../core/services/places.service';
+import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
+import { FavoriteService } from '../../core/services/favorite.service';
+import { ToastService } from '../../core/services/toast.service';
+import { MyProfile, Place, ProfileInput, User } from '../../core/models';
 import { PlaceCardComponent } from '../../components/place-card/place-card.component';
+
+interface ProfileForm {
+  nickname: string;
+  bio: string;
+  location: string;
+  birthdate: string;
+}
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PlaceCardComponent]
+  imports: [RouterLink, FormsModule, DatePipe, PlaceCardComponent]
 })
 export class ProfileComponent implements OnInit {
-  usuario: AuthUser | null = null;
-  perfil: FullProfile | null = null;
-  cargando = true;
+  private readonly auth = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly favoriteService = inject(FavoriteService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
-  // modo edición
-  editando = false;
-  editNickname = '';
-  editBio = '';
-  guardando = false;
-  editError = '';
-  editExito = false;
+  user: User | null = null;
+  profile: MyProfile | null = null;
+  loading = true;
 
-  // sección de favoritos
-  favoritos: Place[] = [];
-  likedIds = new Set<number>();
-  cargandoFavoritos = true;
+  editing = false;
+  saving = false;
+  form: ProfileForm = { nickname: '', bio: '', location: '', birthdate: '' };
 
-  constructor(private auth: AuthService, private places: PlacesService) {}
+  confirmingDelete = false;
+  deleting = false;
+
+  favorites: Place[] = [];
+  loadingFavorites = true;
 
   ngOnInit() {
-    this.auth.currentUser$.subscribe(u => this.usuario = u);
-    this.cargarPerfil();
-    this.cargarFavoritos();
+    this.auth.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => (this.user = user));
+    this.loadProfile();
+    this.loadFavorites();
   }
 
-  cargarPerfil() {
-    this.cargando = true;
-    this.auth.getFullProfile().subscribe({
-      next: (p) => { this.perfil = p; this.cargando = false; },
-      error: () => { this.cargando = false; }
-    });
+  get initial(): string {
+    return this.user?.nickname.charAt(0).toUpperCase() ?? '?';
   }
-
-  cargarFavoritos() {
-    this.cargandoFavoritos = true;
-    this.places.getMyLikes().subscribe({
-      next: (likes: any[]) => {
-        this.favoritos = likes.map(l => l.Place_Product).filter(Boolean);
-        this.favoritos.forEach(p => this.likedIds.add(p.id));
-        this.cargandoFavoritos = false;
-      },
-      error: () => { this.cargandoFavoritos = false; }
-    });
-  }
-
-  get inicial() { return this.usuario?.nickname?.charAt(0).toUpperCase() ?? '?'; }
 
   get stats() {
-    if (!this.perfil) return [
-      { label: 'Recomendaciones', value: '—', icon: 'star' },
-      { label: 'Comentarios',     value: '—', icon: 'chat' },
-      { label: 'Favoritos',       value: '—', icon: 'heart' },
-    ];
     return [
-      { label: 'Recomendaciones', value: String(this.perfil.stats.recomendaciones), icon: 'star' },
-      { label: 'Comentarios',     value: String(this.perfil.stats.comentarios),     icon: 'chat' },
-      { label: 'Favoritos',       value: String(this.perfil.stats.likes),           icon: 'heart' },
+      { label: 'Recomendaciones', value: this.profile?.stats.recommendations ?? '—' },
+      { label: 'Favoritos',       value: this.profile?.stats.favorites ?? '—' }
     ];
   }
 
-  abrirEdicion() {
-    this.editNickname = this.usuario?.nickname ?? '';
-    this.editBio      = this.perfil?.Profile?.bio ?? '';
-    this.editando     = true;
-    this.editError    = '';
-    this.editExito    = false;
-  }
-
-  cancelarEdicion() { this.editando = false; }
-
-  guardarPerfil() {
-    if (!this.editNickname.trim()) { this.editError = 'El nombre de usuario no puede estar vacío'; return; }
-    this.guardando = true;
-    this.editError = '';
-
-    this.auth.updateProfile({ nickname: this.editNickname.trim(), bio: this.editBio }).subscribe({
-      next: () => {
-        this.guardando = false;
-        this.editando  = false;
-        this.editExito = true;
-        this.cargarPerfil();
-        setTimeout(() => this.editExito = false, 3000);
+  loadProfile() {
+    this.loading = true;
+    this.userService.getMe().subscribe({
+      next: (profile) => {
+        this.profile = profile;
+        this.loading = false;
       },
-      error: (err) => {
-        this.editError = err.error?.error || 'Error al guardar';
-        this.guardando = false;
-      }
+      error: () => (this.loading = false)
     });
   }
 
-  onToggleLike(place: Place) {
-    // quitamos el favorito y lo removemos de la lista (UX optimista)
-    this.favoritos = this.favoritos.filter(p => p.id !== place.id);
-    this.likedIds.delete(place.id);
-    this.places.toggleLike(place.id, true).subscribe();
+  loadFavorites() {
+    this.favoriteService.list().subscribe({
+      next: (places) => {
+        this.favorites = places;
+        this.loadingFavorites = false;
+      },
+      error: () => (this.loadingFavorites = false)
+    });
+  }
+
+  startEdit() {
+    const data = this.profile?.Profile;
+    this.form = {
+      nickname: this.user?.nickname ?? '',
+      bio: data?.bio ?? '',
+      location: data?.location ?? '',
+      birthdate: data?.birthdate ?? ''
+    };
+    this.editing = true;
+  }
+
+  cancelEdit() {
+    this.editing = false;
+  }
+
+  saveProfile() {
+    const nickname = this.form.nickname.trim();
+    if (nickname.length < 3) {
+      this.toast.show('El nombre de usuario debe tener al menos 3 caracteres', 'error');
+      return;
+    }
+
+    // los campos vacíos se mandan como null para poder borrarlos
+    const data: ProfileInput = {
+      nickname,
+      bio: this.form.bio.trim() || null,
+      location: this.form.location.trim() || null,
+      birthdate: this.form.birthdate || null
+    };
+
+    this.saving = true;
+    this.userService.updateMe(data).subscribe({
+      next: () => {
+        this.saving = false;
+        this.editing = false;
+        this.toast.show('Perfil actualizado', 'success');
+        this.loadProfile();
+      },
+      error: () => (this.saving = false)
+    });
+  }
+
+  deleteAccount() {
+    this.deleting = true;
+    this.userService.deleteMe().subscribe({
+      next: () => {
+        this.auth.clearSession();
+        this.toast.show('Tu cuenta fue eliminada', 'info');
+        this.router.navigate(['/']);
+      },
+      error: () => (this.deleting = false)
+    });
+  }
+
+  onRemoveFavorite(place: Place) {
+    this.favorites = this.favorites.filter((p) => p.id !== place.id);
+    this.favoriteService.toggle(place.id, true).subscribe(() => this.loadProfile());
   }
 }

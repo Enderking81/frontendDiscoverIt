@@ -1,26 +1,25 @@
-<div class="relative">
-  <button (click)="toggleDropdown()" class="menu-button">
-    <img src="/assets/menu.svg" alt="Menú" />
-  </button>
+@if (user) {
+  <div class="account">
+    <button type="button" class="avatar-btn" (click)="toggle()" [attr.aria-expanded]="isOpen()"
+      aria-haspopup="menu" [attr.aria-label]="'Cuenta de ' + user.nickname">
+      {{ initial }}
+    </button>
 
-  @if (isOpen()) {
-    <ul class="dropdown-menu show">
-
-      @if (usuario) {
-        <!-- usuario logueado -->
-        <li class="dropdown-item usuario-info">Hola, {{ usuario.nickname }}</li>
-        <li class="dropdown-item"><a routerLink="/">Inicio</a></li>
-        <li class="dropdown-item"><a routerLink="/profile">Mi cuenta</a></li>
-        @if (usuario.isAdmin) {
-          <li class="dropdown-item admin-item"><a routerLink="/admin">Panel de Admin</a></li>
+    @if (isOpen()) {
+      <div class="menu" role="menu">
+        <div class="menu-header">
+          <span class="menu-name">{{ user.nickname }}</span>
+          <span class="menu-email">{{ user.email }}</span>
+        </div>
+        <a role="menuitem" class="menu-item" routerLink="/profile" (click)="close()">Mi perfil</a>
+        <a role="menuitem" class="menu-item" routerLink="/favorites" (click)="close()">Mis favoritos</a>
+        @if (user.isAdmin) {
+          <a role="menuitem" class="menu-item accent" routerLink="/admin" (click)="close()">Panel de administración</a>
         }
-        <li class="dropdown-item" (click)="cerrarSesion()">Cerrar sesión</li>
-      } @else {
-        <!-- usuario no logueado -->
-        <li class="dropdown-item"><a routerLink="/login">Iniciar sesión</a></li>
-        <li class="dropdown-item"><a routerLink="/register">Registrarse</a></li>
-      }
-
-    </ul>
-  }
-</div>
+        <button type="button" role="menuitem" class="menu-item danger" (click)="logout()">Cerrar sesión</button>
+      </div>
+    }
+  </div>
+} @else {
+  <a routerLink="/login" class="login-btn">Ingresar</a>
+}

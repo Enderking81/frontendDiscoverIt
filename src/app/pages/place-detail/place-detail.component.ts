@@ -1,106 +1,152 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PlacesService, Place, Comment, Recommendation } from '../../core/services/places.service';
+import { PlaceService } from '../../core/services/place.service';
+import { RecommendationService } from '../../core/services/recommendation.service';
+import { FavoriteService } from '../../core/services/favorite.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { PlaceDetail, Rating, Recommendation, User } from '../../core/models';
+import { MapComponent } from '../../components/map/map.component';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80';
 
 @Component({
   selector: 'app-place-detail',
   templateUrl: './place-detail.component.html',
   styleUrl: './place-detail.component.css',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink]
+  imports: [FormsModule, RouterLink, DatePipe, DecimalPipe, MapComponent]
 })
 export class PlaceDetailComponent implements OnInit {
-  place: Place | null = null;
-  comentarios: Comment[] = [];
-  recomendaciones: Recommendation[] = [];
-  liked = false;
-  cargando = true;
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly placeService = inject(PlaceService);
+  private readonly recommendationService = inject(RecommendationService);
+  private readonly favoriteService = inject(FavoriteService);
+  private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
 
-  // formulario de nuevo comentario
-  nuevoComentario = '';
-  enviandoComentario = false;
+  place: PlaceDetail | null = null;
+  loading = true;
+  isFavorite = false;
 
-  // formulario de nueva recomendación
-  nuevoPuntaje = 5;
-  nuevaDescripcion = '';
-  enviandoRec = false;
+  // formulario de recomendación (sirve para crear y para editar la propia)
+  points: Rating = 5;
+  description = '';
+  editing = false;
+  saving = false;
+  deletingId: number | null = null;
+  readonly ratingOptions: Rating[] = [1, 2, 3, 4, 5];
 
-  get estaLogueado() { return this.auth.estaLogueado(); }
-  get usuario() { return this.auth.currentUser$.value; }
+  get currentUser(): User | null { return this.auth.currentUser$.value; }
+  get isLoggedIn(): boolean { return this.auth.isLoggedIn(); }
 
-  constructor(
-    private route: ActivatedRoute,
-    private places: PlacesService,
-    private auth: AuthService
-  ) {}
+  // la recomendación del usuario logueado, si ya recomendó este lugar
+  get myRecommendation(): Recommendation | undefined {
+    return this.place?.Recommendations.find((r) => r.idUser === this.currentUser?.id);
+  }
+
+  get showForm(): boolean {
+    return this.isLoggedIn && (!this.myRecommendation || this.editing);
+  }
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.cargarTodo(id);
-  }
+    this.loadPlace(id);
 
-  cargarTodo(id: number) {
-    // carga lugar, comentarios y recomendaciones al mismo tiempo
-    this.places.getById(id).subscribe({ next: p => { this.place = p; this.cargando = false; } });
-    this.places.getComments(id).subscribe({ next: c => this.comentarios = c });
-    this.places.getRecommendations(id).subscribe({ next: r => this.recomendaciones = r });
-
-    if (this.auth.estaLogueado()) {
-      this.places.getMyLikes().subscribe({
-        next: (likes) => { this.liked = likes.some(l => l.placeProductId === id); }
-      });
+    if (this.isLoggedIn) {
+      this.favoriteService.list().subscribe((favorites) => (this.isFavorite = favorites.some((p) => p.id === id)));
     }
   }
 
-  onToggleLike() {
-    if (!this.place || !this.estaLogueado) return;
-    this.places.toggleLike(this.place.id, this.liked).subscribe({
-      next: () => { this.liked = !this.liked; }
-    });
-  }
-
-  onEnviarComentario() {
-    if (!this.place || !this.nuevoComentario.trim()) return;
-    this.enviandoComentario = true;
-    this.places.addComment(this.place.id, this.nuevoComentario).subscribe({
-      next: () => {
-        this.nuevoComentario = '';
-        this.enviandoComentario = false;
-        // recarga comentarios para mostrar el nuevo
-        this.places.getComments(this.place!.id).subscribe({ next: c => this.comentarios = c });
+  loadPlace(id: number) {
+    this.placeService.getById(id).subscribe({
+      next: (place) => {
+        this.place = place;
+        this.loading = false;
       },
-      error: () => { this.enviandoComentario = false; }
+      error: () => {
+        this.place = null;
+        this.loading = false;
+      }
     });
   }
 
-  onEnviarRecomendacion() {
+  onToggleFavorite() {
     if (!this.place) return;
-    this.enviandoRec = true;
-    this.places.addRecommendation(this.place.id, this.nuevoPuntaje, this.nuevaDescripcion).subscribe({
-      next: () => {
-        this.nuevaDescripcion = '';
-        this.enviandoRec = false;
-        // recarga lugar (por el average_rating actualizado) y recomendaciones
-        this.places.getById(this.place!.id).subscribe({ next: p => this.place = p });
-        this.places.getRecommendations(this.place!.id).subscribe({ next: r => this.recomendaciones = r });
-      },
-      error: () => { this.enviandoRec = false; }
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: `/places/${this.place.id}` } });
+      return;
+    }
+    this.favoriteService.toggle(this.place.id, this.isFavorite).subscribe(() => {
+      this.isFavorite = !this.isFavorite;
+      this.toast.show(this.isFavorite ? 'Guardado en favoritos' : 'Quitado de favoritos', 'success');
     });
   }
 
-  get estrellas(): boolean[] {
-    const r = Math.round(this.place?.average_rating ?? 0);
-    return Array.from({ length: 5 }, (_, i) => i < r);
+  startEdit(recommendation: Recommendation) {
+    this.points = recommendation.points;
+    this.description = recommendation.description ?? '';
+    this.editing = true;
   }
 
-  onImgError(e: Event) {
-    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&q=80';
+  cancelEdit() {
+    this.editing = false;
+    this.resetForm();
   }
 
-  puntajeArray(n: number): boolean[] {
-    return Array.from({ length: 5 }, (_, i) => i < n);
+  submitRecommendation() {
+    if (!this.place) return;
+    const placeId = this.place.id;
+    const data = { points: this.points, description: this.description.trim() };
+    const mine = this.myRecommendation;
+
+    this.saving = true;
+    const request$ = mine && this.editing
+      ? this.recommendationService.update(mine.id, data)
+      : this.recommendationService.create(placeId, data);
+
+    request$.subscribe({
+      next: () => {
+        this.toast.show(mine ? 'Recomendación actualizada' : '¡Gracias por tu recomendación!', 'success');
+        this.saving = false;
+        this.editing = false;
+        this.resetForm();
+        // se recarga el lugar para ver el rating promedio recalculado
+        this.loadPlace(placeId);
+      },
+      error: () => (this.saving = false)
+    });
+  }
+
+  // el autor borra la suya; un administrador puede borrar cualquiera
+  canDelete(recommendation: Recommendation): boolean {
+    return recommendation.idUser === this.currentUser?.id || !!this.currentUser?.isAdmin;
+  }
+
+  deleteRecommendation(recommendation: Recommendation) {
+    if (!this.place) return;
+    const placeId = this.place.id;
+    this.recommendationService.remove(recommendation.id).subscribe(() => {
+      this.toast.show('Recomendación eliminada', 'success');
+      this.deletingId = null;
+      this.editing = false;
+      this.loadPlace(placeId);
+    });
+  }
+
+  starsFor(points: number): boolean[] {
+    return this.ratingOptions.map((n) => n <= points);
+  }
+
+  onImgError(event: Event) {
+    (event.target as HTMLImageElement).src = FALLBACK_IMAGE;
+  }
+
+  private resetForm() {
+    this.points = 5;
+    this.description = '';
   }
 }

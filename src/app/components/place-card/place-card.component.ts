@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Place } from '../../core/services/places.service';
+import { Place } from '../../core/models';
 import { ImageFallbackComponent } from '../image-fallback/image-fallback.component';
 
 @Component({
@@ -17,7 +17,7 @@ export class PlaceCardComponent {
   @Input() index = 0;           // para el gradiente de fallback
   @Output() toggleLike = new EventEmitter<Place>();
 
-  get estrellas(): boolean[] {
+  get stars(): boolean[] {
     const rating = Math.round(this.place.average_rating ?? 0);
     return Array.from({ length: 5 }, (_, i) => i < rating);
   }

@@ -72,7 +72,7 @@
 .btn-explore {
   display: inline-block;
   margin-top: 0.5rem;
-  background: var(--color-accent);
+  background: var(--color-accent-fill);
   color: #fff;
   padding: 0.65rem 1.8rem;
   border-radius: 100px;
@@ -82,4 +82,4 @@
   transition: background 0.2s, transform 0.2s;
 }
 
-.btn-explore:hover { background: var(--color-accent-h); transform: translateY(-1px); }
+.btn-explore:hover { background: var(--color-accent-fill-h); transform: translateY(-1px); }

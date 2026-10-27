@@ -1,42 +1,47 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css',
+  styleUrl: './auth-form.css',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink]
+  imports: [ReactiveFormsModule, RouterLink]
 })
 export class LoginComponent {
-  form: FormGroup;
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  // si el guard mandó al login, después de ingresar se vuelve a la página que se quería ver
+  private readonly returnUrl = inject(ActivatedRoute).snapshot.queryParamMap.get('returnUrl') ?? '/';
+
+  readonly form = inject(FormBuilder).nonNullable.group({
+    email:    ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
   errorMsg = '';
-  cargando = false;
+  loading = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    // si ya está logueado, redirige directo al home
-    if (this.auth.estaLogueado()) this.router.navigate(['/']);
-
-    this.form = this.fb.group({
-      email:    ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+  constructor() {
+    if (this.auth.isLoggedIn()) this.router.navigateByUrl(this.returnUrl);
   }
 
   onSubmit() {
-    if (this.form.invalid) return;
-    this.cargando = true;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.loading = true;
     this.errorMsg = '';
 
-    const { email, password } = this.form.value;
+    const { email, password } = this.form.getRawValue();
     this.auth.login(email, password).subscribe({
-      next: () => this.router.navigate(['/']),
-      error: (err) => {
-        this.errorMsg = err.error?.error || 'Error al iniciar sesión';
-        this.cargando = false;
+      next: () => this.router.navigateByUrl(this.returnUrl),
+      error: (err: HttpErrorResponse) => {
+        this.errorMsg = err.error?.error ?? 'Error al iniciar sesión';
+        this.loading = false;
       }
     });
   }

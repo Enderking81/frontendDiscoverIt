@@ -1,3 +1,6 @@
-<div class="map-wrap">
-  <div #mapEl class="map-canvas"></div>
+<div class="map-wrap" [style.height.px]="height">
+  <div #mapEl class="map-canvas di-map" role="region" aria-label="Mapa de lugares"></div>
+  @if (placesWithCoordinates.length === 0) {
+    <p class="map-empty">No hay lugares con ubicación para mostrar en el mapa.</p>
+  }
 </div>
